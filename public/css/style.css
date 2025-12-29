@@ -1,0 +1,486 @@
+/* ============================================================
+   ENGINE-LOG UI THEME (Hybrid Dark/Airy Theme – FINAL)
+   Purpose: Engineering error-report & troubleshooting platform
+   Aesthetic: Soft dark, airy light contrast, subtle AI glow
+============================================================ */
+
+/* -----------------------------------------------------------
+   0. FONT IMPORTS
+----------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+
+/* -----------------------------------------------------------
+   1. DESIGN TOKENS — HYBRID DARK MODE (Default)
+----------------------------------------------------------- */
+:root {
+    /* SOFTENED BACKGROUNDS: avoid pure black, use deep charcoal/navy undertones
+       Matches requested tones like #0f172a / #111827 but kept as HSL tokens */
+    --color-bg: 220 18% 6%;        /* deep charcoal (~#0b1220) */
+    --color-surface: 220 14% 12%;  /* ~10-15% lighter than bg */
+    --color-surface-alt: 220 14% 15%;
+
+    /* TEXT COLORS: clearer on dark backgrounds (main ~#e5e7eb, muted ~#9ca3af) */
+    --color-text-main: 220 6% 92%;    /* ~#e5e7eb */
+    --color-text-muted: 215 7% 62%;   /* ~#9ca3af */
+    --color-text-faded: 215 6% 50%;
+
+    /* Accent renkler */
+    --color-primary: 255 60% 58%;   /* slightly desaturated indigo */
+    --color-secondary: 190 65% 48%; /* teal-ish accent for subtle contrast */
+    --color-accent: 320 55% 60%;
+
+    /* Border */
+    /* Borders: subtle, slightly lighter than surfaces */
+    --border-color: 220 10% 22%;
+    --border-light: 220 10% 30%;
+
+    /* Input */
+    --input-bg: 240 5% 17%;
+
+    /* Severity Colors */
+    --sev-critical: 0 75% 55%;
+    --sev-high: 20 75% 55%;
+    --sev-medium: 42 80% 55%;
+    --sev-low: 180 60% 45%;
+
+    /* Glassmorphism */
+    --glass-bg: hsla(230, 8%, 14%, 0.50);
+    --glass-border: hsla(0, 0%, 100%, 0.04);
+    --glass-blur: 10px;
+
+    /* Layout */
+    --radius-sm: .4rem;
+    --radius-md: .7rem;
+    --radius-lg: .9rem;
+
+    --container-width: 1200px;
+    --header-height: 72px;
+
+    --ts: .28s ease; /* gentle transition timing */
+
+    /* Softened shadows per request */
+    --shadow-sm: 0 6px 14px rgba(2,6,23,0.18);
+    --shadow-md: 0 8px 24px rgba(2,6,23,0.28);
+}
+
+
+/* -----------------------------------------------------------
+   2. LIGHT THEME (Soft Airy Gray)
+----------------------------------------------------------- */
+body.light {
+    --color-bg: 0 0% 90%;              /* Tam beyaz değil, soft light */
+    --color-surface: 0 0% 98%;
+    --color-surface-alt: 0 0% 93%;
+
+    --color-text-main: 240 5% 15%;
+    --color-text-muted: 240 4% 40%;
+    --color-text-faded: 240 4% 55%;
+
+    --border-color: 240 5% 80%;
+    --border-light: 240 5% 72%;
+    
+    --input-bg: 0 0% 94%;
+
+    --glass-bg: hsla(0,0%,100%,0.55);
+    --glass-border: hsla(0,0%,0%,0.08);
+}
+
+
+/* -----------------------------------------------------------
+   3. GLOBAL RESET
+----------------------------------------------------------- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: hsl(var(--color-bg));
+    color: hsl(var(--color-text-main));
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    /* Soft subtle texture — reduced intensity to avoid glow */
+    background-image:
+        radial-gradient(circle at 50% -18%, hsla(var(--color-primary) / 0.08), transparent 60%),
+        linear-gradient(hsla(var(--color-primary) / 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, hsla(var(--color-primary) / 0.02) 1px, transparent 1px);
+    background-size: 65vw 65vw, 48px 48px, 48px 48px;
+
+    transition: background var(--ts), color var(--ts);
+}
+
+
+/* -----------------------------------------------------------
+   4. TYPOGRAPHY
+----------------------------------------------------------- */
+h1, h2, h3 { font-weight: 700; margin-bottom: 1rem; letter-spacing: 0.2px; }
+
+h1 { font-size: clamp(2rem, 4vw, 3.2rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 2.15rem); }
+h3 { font-size: 1.25rem; }
+
+p { color: hsl(var(--color-text-muted)); margin-bottom: 1.25rem; line-height: 1.7; }
+
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+.text-gradient {
+    background: linear-gradient(120deg, hsl(var(--color-text-main)), hsl(var(--color-primary) / 0.95));
+    -webkit-background-clip: text; color: transparent; opacity: 0.98;
+}
+
+
+/* -----------------------------------------------------------
+   5. LAYOUT
+----------------------------------------------------------- */
+.container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+main { flex: 1; padding-top: 2rem; padding-bottom: 3rem; }
+
+
+/* -----------------------------------------------------------
+   6. NAVBAR
+----------------------------------------------------------- */
+.navbar {
+    height: var(--header-height);
+    background: linear-gradient(180deg, hsla(var(--color-bg) / 0.98), hsla(var(--color-surface) / 0.95));
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    backdrop-filter: blur(var(--glass-blur));
+    box-shadow: 0 1px 0 rgba(0,0,0,0.35);
+}
+
+.navbar-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.25rem;
+    color: hsl(var(--color-text-main));
+}
+
+
+/* -----------------------------------------------------------
+   7. CARD SYSTEM
+----------------------------------------------------------- */
+.card {
+    background: hsl(var(--color-surface));
+    /* Card background slightly lighter than page, soft border */
+    border: 1px solid hsl(var(--border-color) / 0.6);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    transition: box-shadow var(--ts), transform var(--ts), border-color var(--ts);
+    box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+    /* gentle hover: tiny lift and soft shadow increase */
+    border-color: hsl(var(--border-color));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+
+/* -----------------------------------------------------------
+   8. TAGS & META
+----------------------------------------------------------- */
+.tag {
+    padding: .35rem .7rem;
+    background: hsl(var(--color-surface-alt));
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    font-size: .75rem;
+    color: hsl(var(--color-text-muted));
+}
+
+.tag:hover {
+    border-color: hsl(var(--color-primary));
+}
+
+
+/* -----------------------------------------------------------
+   9. SEVERITY BADGES
+----------------------------------------------------------- */
+.sev {
+    padding: .25rem .6rem;
+    border-radius: var(--radius-sm);
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sev-critical { background: hsl(var(--sev-critical) / 0.15); color: hsl(var(--sev-critical)); }
+.sev-high     { background: hsl(var(--sev-high) / 0.15);     color: hsl(var(--sev-high)); }
+.sev-medium   { background: hsl(var(--sev-medium) / 0.15);   color: hsl(var(--sev-medium)); }
+.sev-low      { background: hsl(var(--sev-low) / 0.15);      color: hsl(var(--sev-low)); }
+
+
+/* -----------------------------------------------------------
+   10. BUTTONS
+----------------------------------------------------------- */
+.btn {
+    padding: .7rem 1.3rem;
+    border-radius: calc(var(--radius-sm) - 0.05rem);
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform var(--ts), box-shadow var(--ts), background-color var(--ts), color var(--ts), border-color var(--ts);
+}
+
+.btn-primary {
+    background: hsl(var(--color-primary));
+    color: #fff;
+}
+
+.btn-primary:hover {
+    /* soften hover shadow, avoid harsh glow */
+    filter: brightness(1.055);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(2,6,23,0.18);
+}
+
+.btn-outline {
+    border: 1px solid hsl(var(--color-text-muted));
+    color: hsl(var(--color-text-main));
+}
+
+.btn-outline:hover {
+    border-color: hsl(var(--color-primary));
+    color: hsl(var(--color-primary));
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(2,6,23,0.10);
+}
+
+
+/* -----------------------------------------------------------
+   11. CODE BLOCKS
+----------------------------------------------------------- */
+.code-block {
+    background: hsl(var(--color-surface-alt));
+    border-left: 4px solid hsl(var(--color-primary));
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* subtle utilities */
+.soft-appear { transition: opacity var(--ts) ease, transform var(--ts) ease; }
+.soft-appear:hover { opacity: .98; }
+
+
+/* -----------------------------------------------------------
+   12. SEARCH BAR
+----------------------------------------------------------- */
+.search-bar {
+    background: hsl(var(--color-surface-alt));
+    border: 1px solid var(--border-color);
+    padding: .8rem 1rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: .75rem;
+}
+
+.search-bar input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: hsl(var(--color-text-main));
+}
+
+/* -----------------------------------------------------------
+   FORM ELEMENTS (inputs, textareas, selects)
+   - Use dark gray-blue backgrounds instead of pure black
+   - Improve placeholder contrast for readability
+   - Keep transitions gentle (0.2s-0.3s range via --ts)
+----------------------------------------------------------- */
+input, textarea, select {
+    background: hsl(var(--color-surface-alt));
+    border: 1px solid hsl(var(--border-light) / 0.6);
+    color: hsl(var(--color-text-main));
+    padding: .5rem .75rem;
+    border-radius: calc(var(--radius-sm));
+    transition: border-color var(--ts), box-shadow var(--ts), transform var(--ts);
+}
+
+textarea { min-height: 120px; }
+
+input::placeholder, textarea::placeholder {
+    color: hsl(var(--color-text-faded));
+    opacity: 0.95;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: hsl(var(--color-primary));
+    box-shadow: 0 8px 24px rgba(2,6,23,0.12);
+}
+
+/* Panels / admin cards — slightly lighter and softer shadow */
+.admin-table, .panel, .announcement, .card-panel {
+    background: hsl(var(--color-surface-alt));
+    border: 1px solid hsl(var(--border-light) / 0.6);
+    box-shadow: 0 8px 24px rgba(2,6,23,0.16);
+}
+
+
+/* -----------------------------------------------------------
+   13. TABLES
+----------------------------------------------------------- */
+.table-container {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+th, td {
+    border-bottom: 1px solid var(--border-light);
+    padding: 1rem;
+}
+
+
+/* -----------------------------------------------------------
+   14. FOOTER
+----------------------------------------------------------- */
+.footer {
+    padding: 2rem 0;
+    text-align: center;
+    color: hsl(var(--color-text-muted));
+}
+
+
+/* -----------------------------------------------------------
+   15. RESPONSIVE
+----------------------------------------------------------- */
+@media (max-width: 768px) {
+    h1 { font-size: 2.3rem; }
+    .container { padding: 0 1rem; }
+}
+
+/* -----------------------------------------------------------
+   ACCESSIBILITY / DARK MODE FIXES (Checkboxes, Navbar, Tables)
+   These rules improve contrast on dark backgrounds without altering logic
+----------------------------------------------------------- */
+
+/* Navbar right-side links — avoid pure black, use soft white tones */
+.navbar .nav-link {
+    color: hsl(var(--color-text-faded));
+    transition: color var(--ts), opacity var(--ts);
+    font-weight: 600;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+    color: hsl(var(--color-text-main));
+    text-decoration: none;
+}
+
+/* Checkbox label — higher contrast and slightly heavier weight */
+.form-check-label {
+    color: hsl(var(--color-text-muted));
+    font-weight: 600;
+}
+
+.form-check-input:focus {
+    outline: 2px solid hsl(var(--color-primary) / 0.18);
+}
+
+/* Admin tables — ensure readable text on dark rows */
+.admin-table th {
+    color: hsl(var(--color-text-muted));
+    font-weight: 700;
+}
+
+.admin-table td, .admin-table tbody td {
+    color: hsl(var(--color-text-main));
+}
+
+/* Action links in tables - subtle accent on hover */
+.admin-table .action-link {
+    color: hsl(var(--color-secondary));
+    text-decoration: none;
+    transition: color var(--ts);
+}
+
+.admin-table .action-link:hover {
+    color: hsl(var(--color-primary));
+    text-decoration: underline;
+}
+
+/* Small utility to ensure muted text is visible on near-black surfaces */
+.text-muted {
+    color: hsl(var(--color-text-faded)) !important;
+}
+
+/* -----------------------------------------------------------
+   HOMEPAGE SPECIFIC STYLES
+----------------------------------------------------------- */
+.hero {
+    padding: 4.2rem 0 3.2rem;
+    text-align: center;
+    background: radial-gradient(circle at 50% -10%, hsla(var(--color-primary), 0.12), transparent 60%);
+}
+
+.hero-lead {
+    max-width: 820px;
+    margin: .6rem auto 1.25rem;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: hsl(var(--color-text-muted));
+}
+
+.hero-stats {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 0.92rem;
+    color: hsl(var(--color-text-muted));
+}
+
+.hero-stats .stat-count { color: hsl(var(--color-primary)); font-weight: 700; }
+
+.hero-actions { margin-top: 1.25rem; display: flex; gap: .9rem; justify-content: center; }
+
+.features { margin-top: 2.4rem; }
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem 1.4rem;
+    margin-top: 1.25rem;
+}
+.feature-card { padding: 1.25rem; }
+.feature-card h3 { font-size: 1.05rem; margin-bottom: .6rem; color:hsl(var(--color-text-main)); }
+.feature-card p { font-size: .95rem; color: hsl(var(--color-text-muted)); }
+
+.how { margin-top: 2.5rem; }
+.how-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.step { background: hsl(var(--color-surface)); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: left; }
+.step-index { width: 44px; height: 44px; border-radius: 8px; background: hsl(var(--color-surface-alt)); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: hsl(var(--color-text-main)); margin-bottom: .6rem; }
+.step h4 { margin: 0 0 .4rem; font-size: 1rem; }
+.step p { color: hsl(var(--color-text-muted)); font-size: .95rem; line-height:1.5 }
+
+.recent { margin-top: 2.2rem; }
+.recent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: .9rem; }
+.recent-card { display: block; padding: .9rem; text-decoration: none; color: inherit; }
+.recent-card h4 { margin-bottom: .35rem; font-size: 1rem; }
+.recent-card p { font-size: .85rem; color: hsl(var(--color-text-faded)); }
+
+.page-spacer { height: 80px; }
+
+@media (max-width: 768px) {
+    .hero-lead { padding: 0 0.2rem; }
+    .hero-actions { flex-direction: column; gap: .7rem; }
+}

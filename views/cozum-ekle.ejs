@@ -1,0 +1,195 @@
+<%- include("partials/header", { title: "Yeni Çözüm Ekle - EngiLog" }) %>
+
+<style>
+    .page-title {
+        font-size: clamp(1.8rem, 4vw, 2.4rem);
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+    }
+
+    .page-sub {
+        color: hsl(var(--color-text-muted));
+        max-width: 650px;
+        margin: 0 auto;
+    }
+
+    .form-panel {
+        background: hsl(var(--color-surface));
+        border: 1px solid hsl(var(--border-color));
+        border-radius: var(--radius-md);
+        padding: 2.5rem;
+    }
+
+    .upload-box {
+        background: hsl(var(--color-surface-alt));
+        border: 2px dashed hsl(var(--border-light));
+        padding: 2rem;
+        border-radius: var(--radius-md);
+        transition: var(--ts);
+        text-align: center;
+    }
+
+    .upload-box:hover {
+        border-color: hsl(var(--color-primary));
+    }
+
+    .problem-reference {
+        color: hsl(var(--color-secondary));
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1rem;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+
+    /* === GÖRSEL ÖNİZLEME === */
+    .img-preview {
+        width: 100%;
+        max-width: 420px;
+        height: 240px;
+        margin: 1.5rem auto 0;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+        display: none;
+        cursor: zoom-in;
+    }
+
+    .img-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* === MODAL === */
+    .img-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .img-modal img {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 12px;
+    }
+</style>
+
+<div class="container py-5">
+
+    <!-- Başlık -->
+    <div class="text-center mb-5">
+        <h1 class="page-title text-gradient font-mono">
+            Yeni Çözüm Ekle
+        </h1>
+        <p class="page-sub">
+            Bu soruna dair uyguladığın çözümü paylaş.
+        </p>
+    </div>
+
+    <!-- Form Panel -->
+    <div class="form-panel mx-auto" style="max-width:850px;">
+
+        <% if (!sorun) { %>
+            <div class="alert alert-danger">
+                Sorun bulunamadı.
+            </div>
+        <% } else { %>
+
+        <!-- Sorun referansı -->
+        <div class="problem-reference">
+            Sorun: <%= sorun.baslik %>
+        </div>
+
+        <form method="POST"
+              action="/sorunlar/<%= sorun.slug || sorun._id %>/cozum-ekle"
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+            <!-- Açıklama -->
+            <div class="mb-4">
+                <label class="font-mono mb-1">Çözüm Açıklaması</label>
+                <textarea
+                    name="aciklama"
+                    rows="7"
+                    class="form-control font-mono"
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Fotoğraf -->
+            <div class="mb-4">
+                <label class="font-mono mb-1">Fotoğraf Yükle (İsteğe Bağlı)</label>
+
+                <div class="upload-box">
+                    <p class="font-mono" style="color:hsl(var(--color-text-muted));">
+                        Çözümü destekleyen tek bir fotoğraf yükleyin
+                    </p>
+
+                    <input
+                        type="file"
+                        name="resim"
+                        class="form-control mt-3"
+                        accept="image/*"
+                        onchange="previewImage(this)"
+                    >
+                </div>
+
+                <!-- ÖNİZLEME -->
+                <div class="img-preview" id="imgPreview" onclick="openModal()">
+                    <img id="previewImg">
+                </div>
+            </div>
+
+            <!-- Gönder -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5 py-2">
+                    Yayınla
+                </button>
+            </div>
+
+        </form>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="img-modal" id="imgModal" onclick="closeModal()">
+    <img id="modalImg">
+</div>
+
+<script>
+    function previewImage(input) {
+        const box = document.getElementById("imgPreview");
+        const img = document.getElementById("previewImg");
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                img.src = e.target.result;
+                box.style.display = "block";
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function openModal() {
+        const modal = document.getElementById("imgModal");
+        const modalImg = document.getElementById("modalImg");
+        modalImg.src = document.getElementById("previewImg").src;
+        modal.style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("imgModal").style.display = "none";
+    }
+</script>
+
+<%- include("partials/footer") %>

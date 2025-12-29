@@ -1,0 +1,12 @@
+<%- include("partials/header", { title: "Form Hatası" }) %>
+
+<div class="container py-5">
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">Form süresi doldu</h4>
+        <p><%= typeof message !== 'undefined' ? message : 'İşlem tamamlanamadı. Lütfen sayfayı yenileyip tekrar deneyin.' %></p>
+        <hr>
+        <p class="mb-0"><a href="javascript:location.reload()">Sayfayı yenile</a> veya ana sayfaya dönün.</p>
+    </div>
+</div>
+
+<%- include("partials/footer") %>

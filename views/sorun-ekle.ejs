@@ -1,0 +1,165 @@
+<%- include("partials/header", { title: "Yeni Sorun Ekle - Engi-Log" }) %>
+
+<style>
+    .page-title {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 700;
+        margin-bottom: .6rem;
+    }
+
+    .page-sub {
+        color: hsl(var(--color-text-muted));
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-panel {
+        background: hsl(var(--color-surface));
+        border: 1px solid hsl(var(--border-color));
+        border-radius: var(--radius-md);
+        padding: 2rem 2.5rem;
+    }
+
+    .upload-box {
+        background: hsl(var(--color-surface-alt));
+        border: 2px dashed hsl(var(--border-light));
+        padding: 2rem;
+        border-radius: var(--radius-md);
+        text-align: center;
+        transition: var(--ts);
+    }
+
+    .upload-box:hover {
+        border-color: hsl(var(--color-primary));
+    }
+
+    /* === GÖRSEL ÖNİZLEME === */
+    .img-preview {
+        width: 100%;
+        max-width: 420px;
+        height: 240px;
+        margin: 1.5rem auto 0;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+        display: none;
+    }
+
+    .img-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
+
+<div class="container py-5">
+
+    <!-- Başlık -->
+    <div class="text-center mb-5">
+        <h1 class="page-title text-gradient font-mono">
+            Yeni Sorun Ekle
+        </h1>
+
+        <p class="page-sub">
+            Karşılaştığın teknik sorunu detaylarıyla paylaş.
+        </p>
+    </div>
+
+    <!-- Form -->
+    <div class="form-panel mx-auto" style="max-width:850px;">
+
+          <form method="POST"
+              action="/sorunlar/ekle"
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <!-- Başlık -->
+            <div class="mb-4">
+                <label class="font-mono mb-2">Sorun Başlığı</label>
+                <input
+                    type="text"
+                    name="baslik"
+                    class="form-control"
+                    required
+                >
+            </div>
+
+            <!-- Kategori -->
+            <div class="mb-4">
+                <label class="font-mono mb-2">Kategori</label>
+                <select name="kategori" class="form-control" required>
+                    <option value="">Kategori seçiniz</option>
+                    <option>Elektronik</option>
+                    <option>Yazılım</option>
+                    <option>Makine</option>
+                    <option>3D Baskı</option>
+                    <option>IoT / Otomasyon</option>
+                </select>
+            </div>
+
+            <!-- Açıklama -->
+            <div class="mb-4">
+                <label class="font-mono mb-2">Sorunun Açıklaması</label>
+                <textarea
+                    name="aciklama"
+                    rows="6"
+                    class="form-control font-mono"
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Fotoğraf -->
+            <div class="mb-4">
+                <label class="font-mono mb-2">Fotoğraf Yükle</label>
+
+                <div class="upload-box">
+                    <p class="font-mono" style="color:hsl(var(--color-text-muted));">
+                        Sorunu gösteren tek bir fotoğraf yükleyin
+                    </p>
+
+                    <input
+                        type="file"
+                        name="resim"
+                        class="form-control mt-3"
+                        accept="image/*"
+                        onchange="previewImage(this)"
+                    >
+                </div>
+
+                <!-- ÖNİZLEME -->
+                <div class="img-preview" id="imgPreview">
+                    <img id="previewImg">
+                </div>
+            </div>
+
+            <!-- Gönder -->
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-primary px-5 py-3">
+                    Yayınla
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    function previewImage(input) {
+        const previewBox = document.getElementById("imgPreview");
+        const previewImg = document.getElementById("previewImg");
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                previewBox.style.display = "block";
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+<%- include("partials/footer") %>

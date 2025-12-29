@@ -1,0 +1,121 @@
+<%- include("partials/header", { title: "Duyurular - EngiLog" }) %>
+
+    <style>
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            margin-bottom: .6rem;
+        }
+
+        .page-sub {
+            color: hsl(var(--color-text-muted));
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Duyuru kartı */
+        .announcement-card {
+            background: hsl(var(--color-surface));
+            border: 1px solid hsl(var(--border-color));
+            border-radius: var(--radius-md);
+            padding: 1.8rem;
+            transition: var(--ts);
+            height: 100%;
+        }
+
+        .announcement-card:hover {
+            border-color: hsl(var(--color-primary));
+            transform: translateY(-3px);
+        }
+
+        .badge-category {
+            background: hsl(var(--color-surface-alt));
+            color: hsl(var(--color-text-muted));
+            border: 1px solid hsl(var(--border-light));
+            border-radius: var(--radius-sm);
+            padding: .35rem .7rem;
+            font-size: .75rem;
+        }
+
+        .announcement-date {
+            color: hsl(var(--color-secondary));
+            font-size: .9rem;
+            font-family: "JetBrains Mono", monospace;
+        }
+    </style>
+
+    <div class="container py-5">
+
+        <!-- Başlık -->
+        <div class="text-center mb-5">
+            <h1 class="page-title text-gradient font-mono">Duyurular</h1>
+            <p class="page-sub">
+                Sistem güncellemeleri, yeni özellikler ve önemli haberler için duyuruları takip edin.
+            </p>
+        </div>
+
+        <!-- DUYURULAR GRID -->
+        <div class="row g-4">
+
+            <% if (!duyurular || duyurular.length===0) { %>
+                <div class="col-12 text-center py-5">
+                    <p style="color:hsl(var(--color-text-muted)); font-size:1.1rem;">
+                        Henüz duyuru bulunmamaktadır.
+                    </p>
+                        <% if (session?.user?.role==="admin" ) { %>
+                        <a href="/admin" class="btn btn-primary mt-3">
+                            Duyuru Ekle
+                        </a>
+                        <% } %>
+                </div>
+                <% } else { %>
+
+                    <% duyurular.forEach(duyuru=> { %>
+                        <div class="col-md-6">
+                            <div class="announcement-card">
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge-category font-mono">Duyuru</span>
+                                    <% /* createdAt alanı varsa tr-TR formatında göster, yoksa kısa çizgi göster */ %>
+                                    <% const formattedDate = duyuru.createdAt ? new Date(duyuru.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }) : "—"; %>
+                                    <span class="announcement-date">
+                                        <%= formattedDate %>
+                                    </span>
+                                </div>
+
+                                <h3 class="mt-2 font-mono text-gradient" style="font-size:1.3rem;">
+                                    <%= duyuru.baslik %>
+                                </h3>
+
+                                <div style="color:hsl(var(--color-text-muted)); margin-top:1rem; line-height:1.6;">
+                                    <% if (duyuru.icerik.length> 150) { %>
+                                        <%= duyuru.icerik.substring(0, 150) %>...
+                                            <% } else { %>
+                                                <%= duyuru.icerik %>
+                                                    <% } %>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-4">
+                                    <span style="font-size:0.85rem; color:hsl(var(--color-text-muted));">
+                                        Ekleyen: <strong style="color:hsl(var(--color-secondary));">
+                                            <%= duyuru.ekleyen %>
+                                        </strong>
+                                    </span>
+
+                                    <a href="/duyurular/<%= duyuru.slug || duyuru._id %>"
+                                        class="btn btn-sm btn-outline-primary">
+                                        Detay
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                        <% }) %>
+
+                            <% } %>
+
+        </div>
+
+    </div>
+
+    <%- include("partials/footer") %>

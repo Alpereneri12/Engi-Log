@@ -1,0 +1,177 @@
+<%- include("partials/header", { title: "Engi-Log | Ana Sayfa" }) %>
+
+<main class="container">
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h1 class="text-gradient">Hataları Çözüme,
+Deneyimi Mirasa Dönüştürün</h1>
+
+        <p class="hero-lead">
+            Teknik sorunlar için merkezi çözüm platformu. Hataların nedenlerini, uygulanmış çözümlerini ve doğrulama bilgilerini tek yerde bulun.
+        </p>
+
+        <!-- Ziyaretçi İstatistikleri -->
+        <div class="hero-stats">
+            <span class="font-mono">👥 Toplam Ziyaretçi: <strong class="stat-count" id="toplamZiyaretci"><%= typeof ziyaretciSayisi !== 'undefined' ? ziyaretciSayisi : '0' %></strong></span>
+            <span class="font-mono">🟢 Şu an <strong class="stat-count" id="onlineKullanici">0</strong> kişi aktif</span>
+        </div>
+
+        <div class="hero-actions">
+            <a href="/sorunlar/ekle" class="btn btn-primary">
+                <span class="font-mono" style="font-size: 1.05rem;">+</span>
+                Sorun Bildir
+            </a>
+
+            <a href="/sorunlar" class="btn btn-outline">
+                Keşfetmeye Başla
+            </a>
+        </div>
+    </section>
+
+    <!-- PLATFORM FEATURES -->
+    <section class="features" aria-labelledby="features-title">
+        <h2 id="features-title">Platform Ne Sunar?</h2>
+
+        <div class="features-grid">
+            <article class="card feature-card">
+                <h3>Sorun Paylaşımı</h3>
+                <p>Kısa, odaklı raporlarla hataları kaydedin. Repro adımlarını, ortam bilgilerini ve beklenen davranışı paylaşın.</p>
+            </article>
+
+            <article class="card feature-card">
+                <h3>Uzman Onaylı Çözümler</h3>
+                <p>Çözümler uzmanlar tarafından değerlendirilebilir; hangi adımlar işe yaradı, hangileri riskli notlanır.</p>
+            </article>
+
+            <article class="card feature-card">
+                <h3>Teknik Arşiv</h3>
+                <p>Benzer vakalar arşivlenir, tekrar eden hatalar ve kök neden analizleri kolayca erişilebilir olur.</p>
+            </article>
+
+            <article class="card feature-card">
+                <h3>Topluluk Destekli Bilgi</h3>
+                <p>Yorumlar, tartışmalar ve doğrulamalarla çözüm önerileri güçlenir; kolektif bilgi güvenilirleşir.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how" aria-labelledby="how-title">
+        <h2 id="how-title">Nasıl Çalışır?</h2>
+
+        <div class="how-grid">
+            <div class="step">
+                <div class="step-index">1</div>
+                <h4>Sorunu ekle</h4>
+                <p>Adımları, logları ve beklenen davranışı ekleyin — kısa ve teknik.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-index">2</div>
+                <h4>Çözümleri incele</h4>
+                <p>Benzer vakalar, önerilen düzeltmeler ve tartışma geçmişini hızlıca gözden geçirin.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-index">3</div>
+                <h4>Doğrulanmış bilgiyi uygula</h4>
+                <p>Test edilmiş çözümleri proje ortamınıza uygulayın ve sonuçları paylaşın.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECENT ITEMS -->
+    <section class="recent" aria-labelledby="recent-title">
+        <h2 id="recent-title">En Son Eklenenler</h2>
+
+        <div class="recent-grid">
+            <% if (typeof sonSorunlar !== 'undefined' && sonSorunlar.length) { %>
+                <% sonSorunlar.slice(0,4).forEach(function(s) { %>
+                    <a class="card recent-card" href="/sorunlar/<%= s._id %>">
+                        <h4><%= s.title || 'Başlık yok' %></h4>
+                        <p class="text-muted"><%= (s.category || 'Genel') + ' · ' + (new Date(s.createdAt).toLocaleDateString()) %></p>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                <a class="card recent-card" href="/sorunlar">Kısa bağlantı: Yeni raporlar için sayfayı ziyaret edin</a>
+                <a class="card recent-card" href="/duyurular">Duyurular: Sistem güncellemelerini kontrol edin</a>
+                <a class="card recent-card" href="/sorunlar/ekle">Bir sorun raporu oluşturun</a>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- BOTTOM SPACER BEFORE FOOTER -->
+    <div class="page-spacer" aria-hidden="true"></div>
+
+</main>
+
+<!-- ============================================ -->
+<!-- SOCKET.IO CLIENT - ONLINE KULLANICI SAYISI -->
+<!-- ============================================ -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    /**
+     * Socket.IO Bağlantısı
+     * 
+     * Bu script, anlık online kullanıcı sayısını gösterir.
+     * - Sayfa açılınca Socket.IO bağlantısı kurulur
+     * - Sunucudan online kullanıcı sayısı alınır
+     * - Kullanıcı sayısı değiştiğinde otomatik güncellenir
+     * - Sayfa kapanınca bağlantı kopar
+     */
+    
+    // Socket.IO bağlantısını kur
+    const socket = io();
+    
+    // Online kullanıcı sayısını gösteren element
+    const onlineKullaniciElement = document.getElementById('onlineKullanici');
+    
+    // ============================================
+    // BAĞLANTI KURULDU: İLK SAYIYI AL
+    // ============================================
+    socket.on('connect', () => {
+        console.log('[Socket.IO] Bağlantı kuruldu');
+    });
+    
+    // ============================================
+    // ONLINE KULLANICI SAYISI GÜNCELLEMESİ
+    // ============================================
+    // Sunucudan online kullanıcı sayısı geldiğinde
+    socket.on('onlineCount', (count) => {
+        onlineKullaniciElement.textContent = count;
+        console.log(`[Socket.IO] Online kullanıcı sayısı: ${count}`);
+    });
+    
+    // Online kullanıcı sayısı güncellendiğinde (başka kullanıcılar girdi/çıktı)
+    socket.on('onlineCountUpdate', (count) => {
+        onlineKullaniciElement.textContent = count;
+        console.log(`[Socket.IO] Online kullanıcı sayısı güncellendi: ${count}`);
+    });
+    
+    // ============================================
+    // HEARTBEAT: SUNUCUYA HALA AKTİF OLDUĞUMUZU BİLDİR
+    // ============================================
+    // Sunucu ping gönderdiğinde pong ile yanıt ver
+    socket.on('ping', () => {
+        socket.emit('pong');
+    });
+    
+    // ============================================
+    // BAĞLANTI KOPTU
+    // ============================================
+    socket.on('disconnect', () => {
+        console.log('[Socket.IO] Bağlantı koptu');
+        onlineKullaniciElement.textContent = '0';
+    });
+    
+    // ============================================
+    // SAYFA KAPANIRKEN: BAĞLANTIYI KES
+    // ============================================
+    // Sayfa kapanırken veya yenilenirken bağlantıyı kes
+    window.addEventListener('beforeunload', () => {
+        socket.disconnect();
+    });
+</script>
+
+<%- include("partials/footer") %>

@@ -1,0 +1,123 @@
+<%- include("partials/header", { title: "Kayıt Ol - EngiLog" }) %>
+
+<style>
+    .center-wrapper {
+        min-height: 85vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .auth-card {
+        width: 450px;
+        background: hsl(var(--color-surface));
+        border: 1px solid hsl(var(--border-color));
+        padding: 2.5rem;
+        border-radius: var(--radius-lg);
+    }
+
+    .auth-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .sub-text {
+        color: hsl(var(--color-text-muted));
+        font-size: .9rem;
+    }
+    .alert-error {
+        background: #fff5f5;
+        border: 1px solid #f1a4a4;
+        color: #8a1f1f;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container center-wrapper">
+
+    <div class="auth-card shadow-sm">
+
+        <h2 class="text-center font-mono text-gradient auth-title">
+            Engi-Log Kayıt
+        </h2>
+
+        <!-- ⚠️ DOĞRU NAME ALANLARI -->
+
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+            <div class="alert-error"><%= errorMessage %></div>
+        <% } %>
+
+        <form action="/register" method="POST">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="mb-4">
+                <label class="font-mono mb-1">Ad Soyad</label>
+                <input
+                    type="text"
+                    name="ad"
+                    class="form-control"
+                    placeholder="örn: Alperen Yılmaz"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label class="font-mono mb-1">E-posta</label>
+                <input
+                    type="email"
+                    name="email"
+                    class="form-control"
+                    placeholder="ornek@mail.com"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label class="font-mono mb-1">Şifre</label>
+                <input
+                    type="password"
+                    name="sifre"
+                    class="form-control"
+                    placeholder="••••••••"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label class="font-mono mb-1">Şifre Tekrar</label>
+                <input
+                    type="password"
+                    name="sifreTekrar"
+                    class="form-control"
+                    placeholder="••••••••"
+                    required
+                >
+            </div>
+
+            <button class="btn btn-primary w-100 py-2 mt-2">
+                Hesap Oluştur
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <span class="sub-text font-mono">
+                Zaten hesabın var mı?
+            </span>
+
+            <a href="/login"
+               class="font-mono"
+               style="color:hsl(var(--color-secondary)); text-decoration:none; margin-left:4px;">
+                Giriş Yap
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<%- include("partials/footer") %>

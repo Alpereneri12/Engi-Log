@@ -1,0 +1,446 @@
+<%- include("partials/header", { title: "Admin Paneli" }) %>
+
+<div class="container py-5 aurora-bg">
+
+    <!-- Admin Başlık -->
+    <div class="text-center mb-5">
+        <h1 class="hero-title text-gradient-neon font-mono">
+            Admin Paneli
+        </h1>
+        <p style="color:hsl(var(--muted-foreground));">
+            Sistemi yönetin, duyuruları güncelleyin ve sorun kayıtlarını kontrol edin.
+        </p>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-3">
+            <div class="glass p-4 rounded shadow-sm card-hover text-center">
+                <h4 class="font-mono text-gradient-primary">Sorunlar</h4>
+                <p class="mt-2 stat-num"><%= typeof sorunSayisi !== "undefined" ? sorunSayisi : "-" %></p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="glass p-4 rounded shadow-sm card-hover text-center">
+                <h4 class="font-mono text-gradient-primary">Çözümler</h4>
+                <p class="mt-2 stat-num" style="color:hsl(var(--neon-violet));"><%= typeof cozumSayisi !== "undefined" ? cozumSayisi : "-" %></p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="glass p-4 rounded shadow-sm card-hover text-center">
+                <h4 class="font-mono text-gradient-primary">Kullanıcılar</h4>
+                <p class="mt-2 stat-num" style="color:hsl(var(--neon-pink));"><%= typeof kullaniciSayisi !== "undefined" ? kullaniciSayisi : "-" %></p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="glass p-4 rounded shadow-sm card-hover text-center">
+                <h4 class="font-mono text-gradient-primary">Duyurular</h4>
+                <p class="mt-2 stat-num" style="color:hsl(var(--primary));"><%= typeof duyuruSayisi !== "undefined" ? duyuruSayisi : "-" %></p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ZİYARETÇİ İSTATİSTİKLERİ -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="glass p-4 rounded shadow-sm card-hover text-center">
+                <h4 class="font-mono text-gradient-primary">Toplam Ziyaretçi</h4>
+                <p class="mt-2 stat-num" style="color:hsl(var(--color-primary));" id="toplamZiyaretci">
+                    <%= typeof toplamZiyaretci !== "undefined" ? toplamZiyaretci : "0" %>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="glass p-4 rounded shadow-sm card-hover text-center">
+                <h4 class="font-mono text-gradient-primary">Bugünkü Ziyaretçi</h4>
+                <p class="mt-2 stat-num" style="color:hsl(var(--color-secondary));">
+                    <%= typeof bugunkuZiyaretci !== "undefined" ? bugunkuZiyaretci : "0" %>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="glass p-4 rounded shadow-sm card-hover text-center">
+                <h4 class="font-mono text-gradient-primary">Anlık Online Kullanıcı</h4>
+                <p class="mt-2 stat-num" style="color:hsl(142, 70%, 50%);" id="onlineKullanici">0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SON SORUNLAR TABLOSU -->
+    <div class="glass p-4 rounded shadow-sm mb-5">
+        <h3 class="font-mono text-gradient-primary mb-3">Son Eklenen Sorunlar</h3>
+
+        <% if (!sonSorunlar || sonSorunlar.length === 0) { %>
+            <p class="text-center text-muted font-mono py-3">Henüz sorun bulunmamaktadır.</p>
+        <% } else { %>
+            <table class="table table-dark table-hover admin-table">
+                <thead>
+                    <tr class="font-mono">
+                        <th>ID</th>
+                        <th>Başlık</th>
+                        <th>Kategori</th>
+                        <th>Tarih</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody class="font-mono">
+                    <% sonSorunlar.forEach(sorun => { %>
+                        <tr>
+                            <td>#<%= sorun._id.toString().substring(0, 8) %></td>
+                            <td><%= sorun.baslik %></td>
+                            <td><%= sorun.kategori %></td>
+                            <td><%= new Date(sorun.createdAt).toLocaleDateString('tr-TR') %></td>
+                            <td>
+                                <a href="/sorunlar/<%= sorun.slug || sorun._id %>" class="action-link me-2">
+                                    Görüntüle
+                                </a>
+                                <form method="POST" action="/admin/sorun/<%= sorun._id %>/sil" style="display:inline;" onsubmit="return confirm('Bu sorunu ve bağlı çözümleri silmek istediğinize emin misiniz?');">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <!-- SON ÇÖZÜMLER TABLOSU -->
+    <div class="glass p-4 rounded shadow-sm mb-5">
+        <h3 class="font-mono text-gradient-primary mb-3">Son Eklenen Çözümler</h3>
+
+        <% if (!sonCozumler || sonCozumler.length === 0) { %>
+            <p class="text-center text-muted font-mono py-3">Henüz çözüm bulunmamaktadır.</p>
+        <% } else { %>
+            <table class="table table-dark table-hover admin-table">
+                <thead>
+                    <tr class="font-mono">
+                        <th>ID</th>
+                        <th>Çözüm</th>
+                        <th>Sorun</th>
+                        <th>Yazan</th>
+                        <th>Tarih</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody class="font-mono">
+                    <% sonCozumler.forEach(cozum => { %>
+                        <tr>
+                            <td>#<%= cozum._id.toString().substring(0, 8) %></td>
+                            <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                <%= cozum.aciklama.substring(0, 50) %><%= cozum.aciklama.length > 50 ? "..." : "" %>
+                            </td>
+                            <td>
+                                <% if (cozum.sorun) { %>
+                                    <a href="/sorunlar/<%= cozum.sorun.slug || cozum.sorun._id %>" class="text-info">
+                                        <%= cozum.sorun.baslik %>
+                                    </a>
+                                <% } else { %>
+                                    <span class="text-muted">Silinmiş</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <%= cozum.yazan %>
+                                <% if (cozum.uzmanOnayli) { %>
+                                    <span class="badge bg-success ms-1">Uzman</span>
+                                <% } %>
+                            </td>
+                            <td><%= new Date(cozum.createdAt).toLocaleDateString('tr-TR') %></td>
+                            <td>
+                                <form method="POST" action="/admin/cozum/<%= cozum._id %>/sil" style="display:inline;" onsubmit="return confirm('Bu çözümü silmek istediğinize emin misiniz?');">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <!-- DUYURU EKLEME FORMU -->
+    <div class="glass p-5 rounded shadow-sm mb-5" style="max-width:850px; margin:0 auto;">
+
+        <h3 class="font-mono text-gradient-neon mb-4">Yeni Duyuru Ekle</h3>
+
+        <!-- Yeni duyuru ekleme formu: resim opsiyonel olarak yüklenebilir -->
+        <form method="POST" action="/admin/duyuru-ekle" enctype="multipart/form-data">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="mb-4">
+                <label class="font-mono mb-2">Duyuru Başlığı</label>
+                <input type="text" name="baslik" class="form-control"
+                       placeholder="Örn: STM32F103 Serisinde Geri Çağırma"
+                       required>
+            </div>
+
+            <div class="mb-4">
+                <label class="font-mono mb-2">Duyuru İçeriği</label>
+                <textarea name="icerik" class="form-control font-mono" rows="5"
+                          placeholder="Duyurunun detaylarını giriniz..."
+                          required></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="font-mono mb-2">Resim (İsteğe Bağlı)</label>
+                <input type="file" name="resim" accept="image/*" class="form-control">
+                <small class="text-muted">Opsiyonel: duyuruya görsel ekleyebilirsiniz (JPEG, PNG vb.)</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary px-5 py-2 animate-pulse-glow mt-3">
+                Yayınla
+            </button>
+        </form>
+    </div>
+
+    <!-- DUYURULAR LİSTESİ -->
+    <div class="glass p-4 rounded shadow-sm mb-5">
+        <h3 class="font-mono text-gradient-primary mb-3">Duyurular</h3>
+
+        <% if (!duyurular || duyurular.length === 0) { %>
+            <p class="text-center text-muted font-mono py-3">Henüz duyuru bulunmamaktadır.</p>
+        <% } else { %>
+            <table class="table table-dark table-hover admin-table">
+                <thead>
+                    <tr class="font-mono">
+                        <th>ID</th>
+                        <th>Başlık</th>
+                        <th>İçerik</th>
+                        <th>Ekleyen</th>
+                        <th>Resim</th>
+                        <th>Tarih</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody class="font-mono">
+                    <% duyurular.forEach(duyuru => { %>
+                        <tr>
+                            <td>#<%= duyuru._id.toString().substring(0, 8) %></td>
+                            <td><%= duyuru.baslik %></td>
+                            <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                <%= duyuru.icerik.substring(0, 50) %><%= duyuru.icerik.length > 50 ? "..." : "" %>
+                            </td>
+                            <td><%= duyuru.ekleyen %></td>
+                            <td>
+                                <% if (duyuru.resim) { %>
+                                    <!-- Thumbnail gösterimi: küçük boyutlu önizleme -->
+                                    <img src="<%= duyuru.resim %>" alt="thumb" style="max-height:48px; border-radius:4px;">
+                                <% } else { %>
+                                    <span class="text-muted">Resim yok</span>
+                                <% } %>
+                            </td>
+                            <td><%= new Date(duyuru.createdAt).toLocaleDateString('tr-TR') %></td>
+                            <td>
+                                <form method="POST" action="/admin/duyuru/<%= duyuru._id %>/sil" style="display:inline;" onsubmit="return confirm('Bu duyuruyu silmek istediğinize emin misiniz?');">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <!-- BAŞARI MESAJI -->
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <% if (successMessage === 'uzman_yapildi') { %>
+                Kullanıcı uzman yapıldı.
+            <% } else if (successMessage === 'uzman_kaldirildi') { %>
+                Kullanıcının uzmanlığı kaldırıldı.
+            <% } %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <!-- KULLANICI & ROL YÖNETİMİ -->
+    <div class="glass p-4 rounded shadow-sm mb-5">
+        <h3 class="font-mono text-gradient-primary mb-3">Kullanıcı & Rol Yönetimi</h3>
+
+        <% if (!kullanıcılar || kullanıcılar.length === 0) { %>
+            <p class="text-center text-muted font-mono py-3">Henüz kullanıcı bulunmamaktadır.</p>
+        <% } else { %>
+            <table class="table table-dark table-hover admin-table">
+                <thead>
+                    <tr class="font-mono">
+                        <th>ID</th>
+                        <th>Ad</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Kayıt Tarihi</th>
+                        <th>Aksiyon</th>
+                    </tr>
+                </thead>
+                <tbody class="font-mono">
+                    <% kullanıcılar.forEach(kullanici => { %>
+                        <tr>
+                            <td>#<%= kullanici._id.toString().substring(0, 8) %></td>
+                            <td><%= kullanici.ad %></td>
+                            <td><%= kullanici.email %></td>
+                            <td>
+                                <% if (kullanici.role === "admin") { %>
+                                    <span class="badge bg-warning text-dark">Admin</span>
+                                <% } else if (kullanici.role === "uzman") { %>
+                                    <span class="badge bg-info text-dark">Uzman</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary">User</span>
+                                <% } %>
+                                <% if (kullanici._id.toString() === session.user.id.toString()) { %>
+                                    <small class="text-muted ms-2">(Siz)</small>
+                                <% } %>
+                            </td>
+                            <td><%= new Date(kullanici.createdAt).toLocaleDateString('tr-TR') %></td>
+                            <td>
+                                <% if (kullanici._id.toString() === session.user.id.toString()) { %>
+                                    <span class="text-muted">-</span>
+                                <% } else { %>
+                                    <% if (kullanici.role === "user") { %>
+                                        <!-- Uzman Yap butonu -->
+                                        <form method="POST" action="/admin/kullanici/<%= kullanici._id %>/uzman-yap" style="display:inline;">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="btn btn-sm btn-info" 
+                                                    onclick="return confirm('Bu kullanıcıyı uzman yapmak istediğinize emin misiniz?');">
+                                                Uzman Yap
+                                            </button>
+                                        </form>
+                                    <% } else if (kullanici.role === "uzman") { %>
+                                        <!-- Uzmanlığı Kaldır butonu -->
+                                        <form method="POST" action="/admin/kullanici/<%= kullanici._id %>/uzman-kaldir" style="display:inline;">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="btn btn-sm btn-warning" 
+                                                    onclick="return confirm('Bu kullanıcının uzmanlığını kaldırmak istediğinize emin misiniz?');">
+                                                Uzmanlığı Kaldır
+                                            </button>
+                                        </form>
+                                    <% } else { %>
+                                        <span class="text-muted">-</span>
+                                    <% } %>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+</div>
+
+    <!-- KULLANICI AKTİVİTE GEÇMİŞİ -->
+    <div class="glass p-4 rounded shadow-sm mb-5">
+        <h3 class="font-mono text-gradient-primary mb-3">Kullanıcı Aktivite Geçmişi</h3>
+
+        <% if (!aktiviteler || aktiviteler.length === 0) { %>
+            <p class="text-center text-muted font-mono py-3">Henüz aktivite kaydı bulunmamaktadır.</p>
+        <% } else { %>
+            <table class="table table-dark table-hover admin-table">
+                <thead>
+                    <tr class="font-mono">
+                        <th>Kullanıcı Adı</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Girdiği Sayfa</th>
+                        <th>Tarih / Saat</th>
+                    </tr>
+                </thead>
+                <tbody class="font-mono">
+                    <% aktiviteler.forEach(activity => { %>
+                        <tr>
+                            <td>
+                                <% /* Eğer populate mevcutsa kullanıcı adını göster, yoksa email'den al */ %>
+                                <%= (activity.userId && activity.userId.ad) ? activity.userId.ad : (activity.userEmail || '-') %>
+                            </td>
+                            <td><%= activity.userEmail %></td>
+                            <td><%= activity.userRole %></td>
+                            <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                <%= activity.visitedUrl || '-' %>
+                            </td>
+                            <td><%= new Date(activity.date).toLocaleString('tr-TR') %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SOCKET.IO CLIENT - ONLINE KULLANICI SAYISI -->
+    <!-- ============================================ -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    /**
+     * Socket.IO Bağlantısı (Admin Panel)
+     * 
+     * Bu script, admin panelinde anlık online kullanıcı sayısını gösterir.
+     * - Sayfa açılınca Socket.IO bağlantısı kurulur
+     * - Sunucudan online kullanıcı sayısı alınır
+     * - Kullanıcı sayısı değiştiğinde otomatik güncellenir
+     * - Sayfa kapanınca bağlantı kopar
+     */
+    
+    // Socket.IO bağlantısını kur
+    const socket = io();
+    
+    // Online kullanıcı sayısını gösteren element
+    const onlineKullaniciElement = document.getElementById('onlineKullanici');
+    
+    // ============================================
+    // BAĞLANTI KURULDU: İLK SAYIYI AL
+    // ============================================
+    socket.on('connect', () => {
+        console.log('[Socket.IO] Admin panel bağlantısı kuruldu');
+    });
+    
+    // ============================================
+    // ONLINE KULLANICI SAYISI GÜNCELLEMESİ
+    // ============================================
+    // Sunucudan online kullanıcı sayısı geldiğinde
+    socket.on('onlineCount', (count) => {
+        onlineKullaniciElement.textContent = count;
+        console.log(`[Socket.IO] Online kullanıcı sayısı: ${count}`);
+    });
+    
+    // Online kullanıcı sayısı güncellendiğinde (başka kullanıcılar girdi/çıktı)
+    socket.on('onlineCountUpdate', (count) => {
+        onlineKullaniciElement.textContent = count;
+        console.log(`[Socket.IO] Online kullanıcı sayısı güncellendi: ${count}`);
+    });
+    
+    // ============================================
+    // HEARTBEAT: SUNUCUYA HALA AKTİF OLDUĞUMUZU BİLDİR
+    // ============================================
+    // Sunucu ping gönderdiğinde pong ile yanıt ver
+    socket.on('ping', () => {
+        socket.emit('pong');
+    });
+    
+    // ============================================
+    // BAĞLANTI KOPTU
+    // ============================================
+    socket.on('disconnect', () => {
+        console.log('[Socket.IO] Admin panel bağlantısı koptu');
+        onlineKullaniciElement.textContent = '0';
+    });
+    
+    // ============================================
+    // SAYFA KAPANIRKEN: BAĞLANTIYI KES
+    // ============================================
+    // Sayfa kapanırken veya yenilenirken bağlantıyı kes
+    window.addEventListener('beforeunload', () => {
+        socket.disconnect();
+    });
+</script>
+
+<%- include("partials/footer") %>

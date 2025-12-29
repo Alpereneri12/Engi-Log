@@ -1,0 +1,162 @@
+<%- include("partials/header", { title: "Sorunlar - Engi-Log" }) %>
+
+<style>
+    .page-title {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 700;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .filter-box {
+        background: hsl(var(--color-surface));
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        border-radius: var(--radius-md);
+        margin-bottom: 2rem;
+    }
+
+    .problem-card {
+        background: hsl(var(--color-surface));
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        border-radius: var(--radius-md);
+        height: 100%;
+        transition: var(--ts);
+    }
+
+    .problem-card:hover {
+        border-color: hsl(var(--color-primary));
+        transform: translateY(-3px);
+    }
+
+    .problem-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: hsl(var(--color-text-main));
+        font-family: "JetBrains Mono", monospace;
+        margin-bottom: .6rem;
+    }
+
+    .problem-desc {
+        color: hsl(var(--color-text-muted));
+        font-size: .95rem;
+    }
+
+    .category-badge {
+        padding: .35rem .7rem;
+        background: hsl(var(--color-surface-alt));
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        color: hsl(var(--color-text-muted));
+        font-size: .75rem;
+        display: inline-block;
+        margin-top: .7rem;
+    }
+
+    .card-meta {
+        font-size: .85rem;
+        color: hsl(var(--color-text-faded));
+        margin-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+
+<div class="container py-5">
+
+    <!-- SAYFA BAŞLIĞI -->
+    <div class="section-header">
+        <h1 class="page-title text-gradient">Sorunlar</h1>
+        <p style="color:hsl(var(--color-text-muted)); margin-top:.5rem;">
+            Mühendislerin karşılaştığı hataları inceleyin ve çözüm üretin.
+        </p>
+    </div>
+
+    <!-- ARAMA VE FİLTRE FORMU -->
+    <div class="filter-box">
+        <form method="GET" action="/sorunlar" class="row g-3">
+            <div class="col-md-6">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="form-control"
+                    placeholder="Sorun başlığı veya anahtar kelime ara..."
+                    value="<%= typeof q !== 'undefined' ? q : '' %>">
+            </div>
+
+            <div class="col-md-4">
+                <select name="kategori" class="form-control">
+                    <option value="">Tüm Kategoriler</option>
+                    <option value="Elektronik" <%= typeof kategori !== 'undefined' && kategori === 'Elektronik' ? 'selected' : '' %>>Elektronik</option>
+                    <option value="Yazılım" <%= typeof kategori !== 'undefined' && kategori === 'Yazılım' ? 'selected' : '' %>>Yazılım</option>
+                    <option value="Makine" <%= typeof kategori !== 'undefined' && kategori === 'Makine' ? 'selected' : '' %>>Makine</option>
+                    <option value="3D Baskı" <%= typeof kategori !== 'undefined' && kategori === '3D Baskı' ? 'selected' : '' %>>3D Baskı</option>
+                    <option value="IoT / Otomasyon" <%= typeof kategori !== 'undefined' && kategori === 'IoT / Otomasyon' ? 'selected' : '' %>>IoT / Otomasyon</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Ara</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- SORUN KARTLARI -->
+    <div class="row g-4">
+
+        <% if (!sorunlar || sorunlar.length === 0) { %>
+            <div class="col-12 text-center">
+                <p style="color:hsl(var(--color-text-muted));">
+                    <% if (typeof q !== 'undefined' && q || typeof kategori !== 'undefined' && kategori) { %>
+                        Arama kriterlerinize uygun sonuç bulunamadı.
+                    <% } else { %>
+                        Henüz kayıtlı bir sorun bulunmuyor.
+                    <% } %>
+                </p>
+            </div>
+        <% } else { %>
+
+        <% sorunlar.forEach(sorun => { %>
+
+            <div class="col-md-4">
+                <a href="/sorunlar/<%= sorun.slug || sorun._id %>" style="text-decoration:none;">
+                    <div class="problem-card">
+
+                        <h5 class="problem-title">
+                            <%= sorun.baslik %>
+                        </h5>
+
+                        <p class="problem-desc">
+                            <%= sorun.aciklama %>
+                        </p>
+
+                        <span class="category-badge">
+                            <%= sorun.kategori %>
+                        </span>
+
+
+                        <div class="card-meta">
+                            <!-- Görüntülenme sayısını kullanıcıya göster (varsayılan 0) -->
+                            <span>Görüntülenme: <%= sorun.goruntulenme || 0 %></span>
+                            <span style="color:hsl(var(--color-secondary));">
+                                → Detay
+                            </span>
+                        </div>
+
+                    </div>
+                </a>
+            </div>
+
+        <% }) %>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<%- include("partials/footer") %>

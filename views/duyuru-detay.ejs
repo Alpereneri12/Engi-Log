@@ -1,0 +1,95 @@
+<%- include("partials/header", { title: duyuru.baslik + " - EngiLog" }) %>
+
+    <style>
+        .detail-card {
+            background: hsl(var(--color-surface));
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        .detail-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        .detail-meta {
+            color: hsl(var(--color-text-muted));
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 1rem;
+        }
+
+        .detail-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+            /* Satır sonlarını koru */
+            color: hsl(var(--color-text-main));
+        }
+
+        .detail-img {
+            max-width: 100%;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-light);
+        }
+    </style>
+
+    <div class="container py-5">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+
+                <a href="/duyurular" style="text-decoration:none; color:hsl(var(--color-text-muted));">
+                    Duyurulara Geri Dön
+                </a>
+
+                <div class="detail-card">
+
+                    <h1 class="detail-title text-gradient">
+                        <%= duyuru.baslik %>
+                    </h1>
+
+                    <% /* createdAt eğer yoksa Invalid Date hatasını önlemek için kontrol ediyoruz */ %>
+                    <% const duyuruTarihi = duyuru.createdAt ? new Date(duyuru.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }) : "—"; %>
+                    <div class="detail-meta">
+                        <span>
+                            <%= duyuruTarihi %>
+                        </span>
+                        <span>
+                            <%= duyuru.ekleyen %>
+                        </span>
+
+                        <% if (session?.user?.role==="admin" ) { %>
+                            <!-- Admin için güncelleme linki artık _id kullanıyor, böylece slug boş olsa bile hata oluşmaz -->
+                            <a href="/duyurular/<%= duyuru._id %>/guncelle"
+                                class="btn btn-sm btn-outline-warning ms-auto">
+                                Duyuruyu Güncelle
+                            </a>
+                        <% } %>
+                    </div>
+
+                    <% if (duyuru.resim) { %>
+                        <img src="<%= duyuru.resim %>" alt="<%= duyuru.baslik %>" class="detail-img">
+                        <% } %>
+
+                            <div class="detail-content">
+                                <%= duyuru.icerik %>
+                            </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <%- include("partials/footer") %>

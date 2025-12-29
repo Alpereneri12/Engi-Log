@@ -1,0 +1,102 @@
+<%- include("partials/header", { title: "Giriş Yap - EngiLog" }) %>
+
+<style>
+    .center-wrapper {
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .auth-card {
+        width: 420px;
+        background: hsl(var(--color-surface));
+        border: 1px solid hsl(var(--border-color));
+        padding: 2.5rem;
+        border-radius: var(--radius-lg);
+    }
+
+    .auth-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .sub-text {
+        color: hsl(var(--color-text-muted));
+        font-size: .9rem;
+    }
+</style>
+
+<div class="container center-wrapper">
+
+    <div class="auth-card shadow-sm">
+
+        <h2 class="text-center font-mono text-gradient auth-title">
+            Engi-Log Giriş
+        </h2>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <!-- Kullanıcıya gösterilecek sade hata alanı (teknik detay yok) -->
+            <div style="background:#fff4f4;border:1px solid #ffc9c9;color:#6b0000;padding:10px;border-radius:6px;margin-bottom:12px;font-size:0.95rem;">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <!-- ⚠️ DOĞRU NAME ALANLARI -->
+        <form action="/login" method="POST">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="mb-4">
+                <label class="font-mono mb-1">E-posta</label>
+                <input
+                    type="email"
+                    name="email"
+                    class="form-control"
+                    placeholder="ornek@mail.com"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label class="font-mono mb-1">Şifre</label>
+                <input
+                    type="password"
+                    name="sifre"
+                    class="form-control"
+                    placeholder="••••••••"
+                    required
+                >
+            </div>
+
+            <button class="btn btn-primary w-100 py-2 mt-2">
+                Giriş Yap
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <a href="#"
+               class="font-mono"
+               style="color:hsl(var(--color-secondary)); text-decoration:none;">
+                Şifremi unuttum?
+            </a>
+        </div>
+
+        <div class="text-center mt-3">
+            <span class="sub-text font-mono">
+                Hesabın yok mu?
+            </span>
+
+            <a href="/register"
+               class="font-mono"
+               style="color:hsl(var(--color-primary)); text-decoration:none; margin-left:4px;">
+                Kayıt Ol
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<%- include("partials/footer") %>

@@ -1,0 +1,66 @@
+<%- include("partials/header", { title: "Duyuru Güncelle - EngiLog" }) %>
+
+    <div class="container py-5">
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+
+                <div class="section-header text-center mb-4">
+                    <h1 class="page-title text-gradient">Duyuru Güncelle</h1>
+                    <p style="color:hsl(var(--color-text-muted));">
+                        Duyuru detaylarını düzenleyin ve güncelleyin.
+                    </p>
+                </div>
+
+                <div class="card p-4"
+                    style="background:hsl(var(--color-surface)); border:1px solid var(--border-color);">
+
+                    <!-- Güncelleme formu action'ı admin için id tabanlı olacak -->
+                    <!-- Duyuru güncelleme formu: enctype multipart/form-data olarak resim yüklemeyi destekler -->
+                    <form action="/duyurular/<%= duyuru._id %>/guncelle" method="POST" enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label class="form-label">Başlık</label>
+                            <input type="text" name="baslik" class="form-control" value="<%= duyuru.baslik %>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">İçerik</label>
+                            <textarea name="icerik" class="form-control" rows="10"
+                                required><%= duyuru.icerik %></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Resim (İsteğe Bağlı)</label>
+                            <% if (duyuru.resim) { %>
+                                <div class="mb-2">
+                                    <small class="text-muted">Mevcut Resim:</small><br>
+                                    <img src="<%= duyuru.resim %>" alt="Mevcut Resim"
+                                        style="max-height: 100px; border-radius: 4px;">
+                                </div>
+                                <!-- Mevcut resmi kaldırmak isteyen admin için checkbox -->
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="on" id="resmiSil" name="resmiSil">
+                                    <label class="form-check-label" for="resmiSil">Resmi Kaldır</label>
+                                </div>
+                            <% } %>
+                            <input type="file" name="resim" class="form-control" accept="image/*">
+                            <small class="text-muted">Yeni bir resim seçerseniz mevcut resim değiştirilecektir.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <!-- İptal linki: önce slug ile gitmeye çalış, yoksa id ile dön -->
+                            <a href="/duyurular/<%= duyuru.slug || duyuru._id %>" class="btn btn-outline-secondary">İptal</a>
+                            <button type="submit" class="btn btn-primary">Güncelle</button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <%- include("partials/footer") %>
