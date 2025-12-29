@@ -1,0 +1,8 @@
+# Enforce LF line endings in the repository to avoid CRLF/LF warnings
+* text=auto eol=lf
+
+# Ensure JSON, JS, and EJS use LF
+*.js text eol=lf
+*.json text eol=lf
+*.ejs text eol=lf
+*.md text eol=lf
