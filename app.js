@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
-// IP bazlı ziyaretçi sayacı (2 saatlik kural ile)
+
 
 app.use(visitorTracker);
 
@@ -160,8 +160,9 @@ io.on('connection', (socket) => {
         await createDefaultUsers(); //Seed işlemlerinin açıklaması şudur: uygulama ilk kez çalıştığında admin ve uzman kullanıcılarını oluşturur.
 
         //HTTP sunucusunu başlat (Socket.io ile birlikte)
-        server.listen(3000, () => {
-            console.log("🚀 Sunucu 3000 portunda çalışıyor");
+        const PORT = process.env.PORT || 3000;
+        server.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 Sunucu ${PORT} portunda çalışıyor`);
             console.log("📡 Socket.IO aktif");
         });
     } catch (err) {
